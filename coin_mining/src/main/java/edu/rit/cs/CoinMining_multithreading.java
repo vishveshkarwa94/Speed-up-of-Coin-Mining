@@ -6,6 +6,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 public class CoinMining_multithreading {
+    static int nonce=0;
+
+
     /**
      * convert byte[] to hex string
      * @param hash
@@ -52,17 +55,17 @@ public class CoinMining_multithreading {
      * @param targetHash target hash
      * @return nonce (a 32-bit integer) that satisfies the requirements
      */
-    public static int pow(String blockHash, String targetHash) {
+    public static void pow(String blockHash, String targetHash) {
         System.out.println("Performing Proof-of-Work...wait...");
-        int nonce=0;
+
         String tmp_hash="undefined";
         // omp parallel for
-        for(nonce=Integer.MIN_VALUE; nonce<=Integer.MAX_VALUE; nonce++) {
-            tmp_hash = SHA256(SHA256(blockHash+String.valueOf(nonce)));
-            if(targetHash.compareTo(tmp_hash)>0)
-                return nonce;
+        for(int temp_nonce=Integer.MIN_VALUE; temp_nonce<=Integer.MAX_VALUE; temp_nonce++) {
+            tmp_hash = SHA256(SHA256(blockHash + String.valueOf(temp_nonce)));
+            if (targetHash.compareTo(tmp_hash) > 0) {
+                nonce = temp_nonce;
+            }
         }
-        return -1;
     }
 
 
@@ -73,7 +76,7 @@ public class CoinMining_multithreading {
         String targetHash = "0000092a6893b712892a41e8438e3ff2242a68747105de0395826f60b38d88dc";
         System.out.println("TargetHash: " + targetHash);
 
-        int nonce = pow(blockHash, targetHash);
+        pow(blockHash, targetHash);
         System.out.println("Nonce:" + nonce);
 
     }
