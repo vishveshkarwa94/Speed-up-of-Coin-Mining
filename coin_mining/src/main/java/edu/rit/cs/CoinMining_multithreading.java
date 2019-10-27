@@ -60,11 +60,9 @@ public class CoinMining_multithreading {
         for(nonce=Integer.MIN_VALUE; nonce<=Integer.MAX_VALUE; nonce++) {
             tmp_hash = SHA256(SHA256(blockHash+String.valueOf(nonce)));
             if(targetHash.compareTo(tmp_hash)>0)
-                break;
+                return nonce;
         }
-        System.out.println("Resulting Hash: " + tmp_hash);
-        System.out.println("Nonce:" + nonce);
-        return nonce;
+        return -1;
     }
 
 
@@ -76,6 +74,7 @@ public class CoinMining_multithreading {
         System.out.println("TargetHash: " + targetHash);
 
         int nonce = pow(blockHash, targetHash);
+        System.out.println("Nonce:" + nonce);
 
     }
 }
