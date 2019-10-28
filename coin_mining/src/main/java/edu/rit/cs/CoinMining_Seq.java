@@ -56,7 +56,7 @@ public class CoinMining_Seq {
         System.out.println("Performing Proof-of-Work...wait...");
         int nonce=0;
         String tmp_hash="undefined";
-        for(nonce=Integer.MIN_VALUE; nonce<=Integer.MAX_VALUE; nonce++) {
+        for(nonce=Integer.MAX_VALUE; nonce<=Integer.MAX_VALUE; nonce++) {
             tmp_hash = SHA256(SHA256(blockHash+String.valueOf(nonce)));
             if(targetHash.compareTo(tmp_hash)>0)
                 break;
@@ -73,9 +73,9 @@ public class CoinMining_Seq {
 
         String targetHash = "0000092a6893b712892a41e8438e3ff2242a68747105de0395826f60b38d88dc";
         System.out.println("TargetHash: " + targetHash);
-
+        long start_time = System.currentTimeMillis();
         int nonce = pow(blockHash, targetHash);
-
+        System.out.println("Time taken :"+(System.currentTimeMillis()-start_time));
     }
 
 
