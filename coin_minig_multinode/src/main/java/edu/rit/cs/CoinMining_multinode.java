@@ -11,7 +11,7 @@ public class CoinMining_multinode extends Thread{
     static final int num_processors = Runtime.getRuntime().availableProcessors()/2;
     static String blockHash = SHA256("CSCI-654 Foundations of Parallel Computing");
     static String targetHash = "0000092a6893b712892a41e8438e3ff2242a68747105de0395826f60b38d88dc";
-    static CoinMining_multithreading[] threads = new CoinMining_multithreading[num_processors];
+    static CoinMining_multinode[] threads = new CoinMining_multinode[num_processors];
     long local_start;
     long local_end;
     int index;
@@ -42,7 +42,7 @@ public class CoinMining_multinode extends Thread{
         }
     }
 
-    public static long pow(long start, long end) {
+    public static long pow(long start, long end){
 
         long temp_nonce=0;
         String tmp_hash="undefined";
@@ -67,15 +67,18 @@ public class CoinMining_multinode extends Thread{
                     threads[i].interrupt();
                 }
             }
-            LongBuffer send_buffer = MPI.newLongBuffer(1);
-            send_buffer.put(0,local_nonce);
-            MPI.COMM_WORLD.send(send_buffer,1,MPI.LONG,0,0);
-            return;
+            send(local_nonce);
         }
     }
 
+    public void send(Long nonce) throws MPIException{
+        LongBuffer send_buffer = MPI.newLongBuffer(1);
+        send_buffer.put(0,local_nonce);
+        MPI.COMM_WORLD.send(send_buffer,1,MPI.LONG,0,0);
+    }
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws MPIException{
 
 
         MPI.Init(args);
@@ -96,17 +99,17 @@ public class CoinMining_multinode extends Thread{
                 MPI.COMM_WORLD.send(send_buffer,2,MPI.LONG,count,0);
             }
 
-            MPI.COMM_WORLD.recv(receive_buffer, 1, MPI_LONG, MPI_ANY_SOURCE,0);
+            MPI.COMM_WORLD.recv(receive_buffer, 1, MPI.LONG, MPI.ANY_SOURCE,0);
             System.out.println("Found nonce :"+receive_buffer.get(0));
             System.exit(0);
         }
         else {
             send_buffer = MPI.newLongBuffer(2);
-            MPI.COMM_WORLD.recv(send_buffer,2,MPI_LONG,0,0);
+            MPI.COMM_WORLD.recv(send_buffer,2,MPI.LONG,0,0);
             long block = (send_buffer.get(1)-send_buffer.get(0))/num_processors;
             long start_nonce = send_buffer.get(0);
             for (int index = 0;index<num_processors;index++){
-                threads[index] = new CoinMining_multithreading(start_nonce,start_nonce+block,index);
+                threads[index] = new CoinMining_multinode(start_nonce,start_nonce+block,index);
                 threads[index].start();
                 start_nonce+=(block+1);
             }
