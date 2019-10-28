@@ -5,15 +5,24 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-public class CoinMining_multithreading {
-    static int nonce=0;
 
+public class CoinMining_multithreading extends Thread {
+    static final int num_processors = Runtime.getRuntime().availableProcessors()/2;
+    static long nonce;
+    static String blockHash = SHA256("CSCI-654 Foundations of Parallel Computing");
+    static String targetHash = "0000092a6893b712892a41e8438e3ff2242a68747105de0395826f60b38d88dc";
+    static CoinMining_multithreading[] threads = new CoinMining_multithreading[num_processors];
+    static long start_time;
+    long local_start;
+    long local_end;
+    int index;
 
-    /**
-     * convert byte[] to hex string
-     * @param hash
-     * @return hex string
-     */
+    CoinMining_multithreading(long start, long end, int index){
+        local_start = start;
+        local_end = end;
+        this.index = index;
+    }
+
     private static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
@@ -24,11 +33,6 @@ public class CoinMining_multithreading {
         return hexString.toString();
     }
 
-    /**
-     * get a sha256 of the input string
-     * @param inputString
-     * @return resulting hash in hex string
-     */
     public static String SHA256(String inputString) {
         try {
             MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
@@ -39,45 +43,53 @@ public class CoinMining_multithreading {
         }
     }
 
-    /**
-     * get a randomized target hash
-     * @return randomized target hash
-     */
-    public static String getTargetHash() {
-        Random rand = new Random();
-        int randInt = rand.nextInt(1000);
-        return SHA256(String.valueOf(randInt));
+    public static long pow(long start, long end) {
+
+        long temp_nonce=0;
+        String tmp_hash="undefined";
+        for(temp_nonce= start; temp_nonce<=end; temp_nonce++) {
+            if(Thread.interrupted()){
+                return -1;
+            }
+            tmp_hash = SHA256(SHA256(blockHash+String.valueOf(temp_nonce)));
+            if(targetHash.compareTo(tmp_hash)>0) {
+                return temp_nonce;
+            }
+        }
+        return -1;
     }
 
-    /**
-     * perform the proof-of-work
-     * @param blockHash hash of the blockinfo
-     * @param targetHash target hash
-     * @return nonce (a 32-bit integer) that satisfies the requirements
-     */
-    public static void pow(String blockHash, String targetHash) {
-        System.out.println("Performing Proof-of-Work...wait...");
-
-        String tmp_hash="undefined";
-        // omp parallel for
-        for(int temp_nonce=Integer.MIN_VALUE; temp_nonce<=Integer.MAX_VALUE; temp_nonce++) {
-            tmp_hash = SHA256(SHA256(blockHash + String.valueOf(temp_nonce)));
-            if (targetHash.compareTo(tmp_hash) > 0) {
-                nonce = temp_nonce;
+    @Override
+    public void run() {
+        long local_nonce = pow(local_start,local_end);
+        if (local_nonce!=-1){
+            for (int i =0; i<num_processors;i++){
+                if(i != index){
+                    threads[i].interrupt();
+                }
             }
+            nonce = local_nonce;
+            System.out.println("Found nonce :"+nonce);
+            System.out.println("Time taken :"+(System.currentTimeMillis()-start_time));
+            return;
         }
     }
 
-
     public static void main(String[] args) {
-        String blockHash = SHA256("CSCI-654 Foundations of Parallel Computing");
         System.out.println("BlockHash: " + blockHash);
-
-        String targetHash = "0000092a6893b712892a41e8438e3ff2242a68747105de0395826f60b38d88dc";
         System.out.println("TargetHash: " + targetHash);
+        System.out.println("Performing Proof-of-Work...wait...");
 
-        pow(blockHash, targetHash);
-        System.out.println("Nonce:" + nonce);
+        start_time = System.currentTimeMillis();
 
+        long start_nonce = Integer.MIN_VALUE;
+        long block = (Long.parseLong("4294967295")/Long.parseLong(num_processors+""));
+
+        for (int index = 0;index<num_processors;index++){
+            threads[index] = new CoinMining_multithreading(start_nonce,start_nonce+block,index);
+            threads[index].start();
+            start_nonce+=(block+1);
+        }
     }
+
 }
