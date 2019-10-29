@@ -67,13 +67,18 @@ public class CoinMining_multinode extends Thread{
                     threads[i].interrupt();
                 }
             }
-            send(local_nonce);
+            try {
+                send(local_nonce);
+            }catch (MPIException e){
+                return;
+            }
+
         }
     }
 
     public void send(Long nonce) throws MPIException{
         LongBuffer send_buffer = MPI.newLongBuffer(1);
-        send_buffer.put(0,local_nonce);
+        send_buffer.put(0,nonce);
         MPI.COMM_WORLD.send(send_buffer,1,MPI.LONG,0,0);
     }
 

@@ -1,15 +1,10 @@
 package edu.rit.cs;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Random;
-
-
+import org.apache.commons.codec.digest.DigestUtils;
 public class CoinMining_multithreading extends Thread {
-    static final int num_processors = Runtime.getRuntime().availableProcessors()/2;
+    static final int num_processors = Runtime.getRuntime().availableProcessors()/4;
     static long nonce;
-    static String blockHash = SHA256("CSCI-654 Foundations of Parallel Computing");
+    static String blockHash;
     static String targetHash = "0000092a6893b712892a41e8438e3ff2242a68747105de0395826f60b38d88dc";
     static CoinMining_multithreading[] threads = new CoinMining_multithreading[num_processors];
     static long start_time;
@@ -23,25 +18,7 @@ public class CoinMining_multithreading extends Thread {
         this.index = index;
     }
 
-    private static String bytesToHex(byte[] hash) {
-        StringBuffer hexString = new StringBuffer();
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }
 
-    public static String SHA256(String inputString) {
-        try {
-            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-            return bytesToHex(sha256.digest(inputString.getBytes(StandardCharsets.UTF_8)));
-        }catch (NoSuchAlgorithmException ex) {
-            System.err.println(ex.toString());
-            return null;
-        }
-    }
 
     public static long pow(long start, long end) {
 
@@ -51,8 +28,9 @@ public class CoinMining_multithreading extends Thread {
             if(Thread.interrupted()){
                 return -1;
             }
-            tmp_hash = SHA256(SHA256(blockHash+String.valueOf(temp_nonce)));
+            tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(blockHash+String.valueOf(temp_nonce)));
             if(targetHash.compareTo(tmp_hash)>0) {
+                System.out.println("Hash: "+tmp_hash);
                 return temp_nonce;
             }
         }
@@ -61,27 +39,27 @@ public class CoinMining_multithreading extends Thread {
 
     @Override
     public void run() {
+        System.out.println("Thread "+index+" running.");
         long local_nonce = pow(local_start,local_end);
         if (local_nonce!=-1){
-            for (int i =0; i<num_processors;i++){
+            nonce = local_nonce;
+            System.out.println("Found nonce :"+nonce);
+            System.out.println("Time taken :"+(System.currentTimeMillis()-start_time));
+                        for (int i =0; i<num_processors;i++){
                 if(i != index){
                     threads[i].interrupt();
                 }
             }
-            nonce = local_nonce;
-            System.out.println("Found nonce :"+nonce);
-            System.out.println("Time taken :"+(System.currentTimeMillis()-start_time));
             return;
         }
     }
 
     public static void main(String[] args) {
+        blockHash = DigestUtils.sha256Hex(args[0]);
         System.out.println("BlockHash: " + blockHash);
         System.out.println("TargetHash: " + targetHash);
         System.out.println("Performing Proof-of-Work...wait...");
-
         start_time = System.currentTimeMillis();
-
         long start_nonce = Integer.MIN_VALUE;
         long block = (Long.parseLong("4294967295")/Long.parseLong(num_processors+""));
 

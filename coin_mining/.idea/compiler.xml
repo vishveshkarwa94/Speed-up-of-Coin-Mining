@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="coin_mining" target="13" />
+      <module name="coin_mining" target="7" />
     </bytecodeTargetLevel>
   </component>
 </project>
