@@ -3,7 +3,7 @@ package edu.rit.cs;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class CoinMining_multithreading extends Thread {
-    static final int num_processors = Runtime.getRuntime().availableProcessors()/4;
+    static final int num_processors = 2;
     static long nonce;
     static String blockHash;
     static String targetHash;
