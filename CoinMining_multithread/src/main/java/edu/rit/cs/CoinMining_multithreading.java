@@ -1,11 +1,12 @@
 package edu.rit.cs;
 
 import org.apache.commons.codec.digest.DigestUtils;
+
 public class CoinMining_multithreading extends Thread {
     static final int num_processors = Runtime.getRuntime().availableProcessors()/4;
     static long nonce;
     static String blockHash;
-    static String targetHash = "0000092a6893b712892a41e8438e3ff2242a68747105de0395826f60b38d88dc";
+    static String targetHash;
     static CoinMining_multithreading[] threads = new CoinMining_multithreading[num_processors];
     static long start_time;
     long local_start;
@@ -17,7 +18,6 @@ public class CoinMining_multithreading extends Thread {
         local_end = end;
         this.index = index;
     }
-
 
 
     public static long pow(long start, long end) {
@@ -39,7 +39,6 @@ public class CoinMining_multithreading extends Thread {
 
     @Override
     public void run() {
-        System.out.println("Thread "+index+" running.");
         long local_nonce = pow(local_start,local_end);
         if (local_nonce!=-1){
             nonce = local_nonce;
@@ -56,6 +55,7 @@ public class CoinMining_multithreading extends Thread {
 
     public static void main(String[] args) {
         blockHash = DigestUtils.sha256Hex(args[0]);
+        targetHash = args[1];
         System.out.println("BlockHash: " + blockHash);
         System.out.println("TargetHash: " + targetHash);
         System.out.println("Performing Proof-of-Work...wait...");
@@ -69,5 +69,4 @@ public class CoinMining_multithreading extends Thread {
             start_nonce+=(block+1);
         }
     }
-
 }

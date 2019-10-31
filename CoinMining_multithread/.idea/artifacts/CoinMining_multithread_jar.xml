@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CoinMining_multithread:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CoinMining_multithread_jar</output-path>
+    <root id="archive" name="CoinMining_multithread.jar">
+      <element id="module-output" name="CoinMining_multithread" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.13/commons-codec-1.13.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

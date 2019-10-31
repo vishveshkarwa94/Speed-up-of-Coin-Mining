@@ -1,17 +1,7 @@
 package edu.rit.cs;
 import org.apache.commons.codec.digest.*;
-//import java.util.Random;
 
 public class CoinMining_Seq {
-    /**
-     * get a randomized target hash
-     * @return randomized target hash
-     */
-//    public static String getTargetHash() {
-//        Random rand = new Random();
-//        int randInt = rand.nextInt(1000);
-//        return DigestUtils.sha256Hex(String.valueOf(randInt));
-//    }
 
     /**
      * perform the proof-of-work
