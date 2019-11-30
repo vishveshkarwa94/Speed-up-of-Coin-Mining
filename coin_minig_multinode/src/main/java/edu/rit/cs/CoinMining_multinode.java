@@ -59,6 +59,7 @@ public class CoinMining_multinode extends Thread{
         for(temp_nonce= start; temp_nonce<=end; temp_nonce++) {
          flag =  MPI.COMM_WORLD.iProbe(0,0);
          if(flag.getSource() == 0 && flag.getTag() == 1){
+             System.out.println("Interrupted by source.");
             return -1;
          }
          tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(tmpBlockHash+String.valueOf(temp_nonce)));
@@ -141,12 +142,14 @@ public class CoinMining_multinode extends Thread{
 
             System.out.println("Block hash : "+tmpBlockHash);
             System.out.println("Target Hash :"+tmpTargetHash);
+
             Long nonce = master(size,receive_buffer);
             System.out.println("Found nonce : "+nonce);
             myTimer.start_timer();
             myTimer.print_elapsed_time();
 
             for(int index = 1;index<size;index++){
+                System.out.println("Interuppting slaves");
                 MPI.COMM_WORLD.iSend(MPI.newIntBuffer(1).put(0,0),1,MPI.INT,index,1);
             }
 
