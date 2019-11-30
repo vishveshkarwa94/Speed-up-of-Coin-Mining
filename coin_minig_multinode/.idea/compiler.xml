@@ -6,8 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="coin_mining" />
         <module name="coin_minig_multinode" />
+        <module name="coin_mining" />
       </profile>
     </annotationProcessing>
   </component>
