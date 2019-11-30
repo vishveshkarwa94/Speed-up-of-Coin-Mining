@@ -1,6 +1,8 @@
 package edu.rit.cs;
 import org.apache.commons.codec.digest.*;
 
+import java.math.BigInteger;
+
 public class CoinMining_Seq {
 
     /**
@@ -22,16 +24,75 @@ public class CoinMining_Seq {
         return nonce;
     }
 
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    public static String HexValueDivideBy(String hexValue, int val) {
+        BigInteger tmp = new BigInteger(hexValue,16);
+        tmp = tmp.divide(BigInteger.valueOf(val));
+        String newHex = bytesToHex(tmp.toByteArray());
+        while (newHex.length() < hexValue.length()) {
+            newHex = '0' + newHex;
+        }
+        return newHex;
+    }
+
+    public static String HexValueMultipleBy(String hexValue, int val) {
+        BigInteger tmp = new BigInteger(hexValue,16);
+        tmp = tmp.multiply(BigInteger.valueOf(val));
+        String newHex = bytesToHex(tmp.toByteArray());
+        while (newHex.length() < hexValue.length()) {
+            newHex = '0' + newHex;
+        }
+        return newHex;
+    }
+
 
     public static void main(String[] args) {
+        int num_blocks = 10;
+        double avgBlockGenerationTimeInSec = 30.0;
+
         String blockHash = DigestUtils.sha256Hex(args[0]);
         String targetHash = args[1];
-        System.out.println("BlockHash: " + blockHash);
-        System.out.println("TargetHash: " + targetHash);
-        long start_time = System.currentTimeMillis();
-        int nonce = pow(blockHash, targetHash);
-        System.out.println("Nonce:" + nonce);
-        System.out.println("Time taken :"+(System.currentTimeMillis()-start_time));
+
+        int currentBlockID = 1;
+
+        String tmpBlockHash = blockHash;
+        String tmpTargetHash = targetHash;
+
+        MyTimer myTimer;
+        int  nonce = 0;
+
+        while (currentBlockID<= num_blocks){
+
+            myTimer = new MyTimer("CurrentBlockID:"+currentBlockID);
+            myTimer.start_timer();
+
+            System.out.println("BlockHash: " + blockHash);
+            System.out.println("TargetHash: " + targetHash);
+            nonce = pow(blockHash, targetHash);
+            System.out.println("Nonce : "+nonce);
+            myTimer.stop_timer();
+            myTimer.print_elapsed_time();
+            System.out.println();
+
+            tmpBlockHash = DigestUtils.sha256Hex(tmpBlockHash+"|"+nonce);
+            if(myTimer.get_elapsed_time_in_sec()<avgBlockGenerationTimeInSec)
+                tmpTargetHash = HexValueDivideBy(tmpTargetHash, 2);
+            else
+                tmpTargetHash = HexValueMultipleBy(tmpTargetHash, 2);
+
+            System.out.println("New Block Hash:  " + tmpBlockHash);
+            System.out.println("New Target Hash: " + tmpTargetHash);
+            currentBlockID++;
+        }
     }
 
 
