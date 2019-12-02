@@ -11,7 +11,7 @@ using namespace std;
 __managed__ int nonce;
 
 __global__
-int pow(string initBlockHash, string initTargetHash, int range) {
+void pow(string initBlockHash, string initTargetHash, int range) {
 
 	cout<<"Performing Proof-of-Work...wait..."<<endl;
 	// index = block index * number of threads per block + thread index
@@ -20,10 +20,11 @@ int pow(string initBlockHash, string initTargetHash, int range) {
     int stride = blockDim.x * gridDim.x;
 	nonce = 0;
 	string tmp_hash = "undefined";
-	for (nonce = index; nonce <= range; nonce= nonce+stride) {
+	for (int tmp_nonce = index; tmp_nonce <= range; tmp_nonce= tmp_nonce+stride) {
 		//cout << " Checking for Nonce : " << nonce << endl;
-		tmp_hash = sha256(sha256(initBlockHash+ std::to_string(nonce)));
-		if (initTargetHash.compare(tmp_hash) > 0) {	
+		tmp_hash = sha256(sha256(initBlockHash+ std::to_string(tmp_nonce)));
+		if (initTargetHash.compare(tmp_hash) > 0) {
+			nonce = tmp_nonce;
 			break;
 		}
 	}

@@ -45,20 +45,22 @@ public class CoinMining_multithread_omp4j extends Thread {
 
     public static void pow() {
 
-        long temp_nonce=0;
-        String tmp_hash="undefined";
-        flag = false;
+        long temp_nonce;
+        String tmp_hash;
+        flag = true;
         // omp parallel for
         for(temp_nonce= Integer.MIN_VALUE; temp_nonce<=Integer.MAX_VALUE; temp_nonce++) {
             if(flag){
-                return;
+                tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(tmpBlockHash+temp_nonce));
+                if(tmpTargetHash.compareTo(tmp_hash)>0) {
+                    System.out.println("Nonce Found: "+temp_nonce);
+                    myTimer.stop_timer();
+                    myTimer.print_elapsed_time();
+                    flag = false;
+                }
             }
-            tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(tmpBlockHash+String.valueOf(temp_nonce)));
-            if(tmpTargetHash.compareTo(tmp_hash)>0) {
-                System.out.println("Nonce Found: "+temp_nonce);
-                myTimer.stop_timer();
-                myTimer.print_elapsed_time();
-                flag = true;
+            else {
+                temp_nonce = Integer.MAX_VALUE;
             }
         }
 
