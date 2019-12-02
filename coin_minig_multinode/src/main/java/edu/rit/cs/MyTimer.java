@@ -24,7 +24,7 @@ public class MyTimer {
     }
 
     public long get_elapsed_time_in_sec() {
-        return this.elapsedTime;
+        return this.elapsedTime/1_000_000_000;
     }
 
 }

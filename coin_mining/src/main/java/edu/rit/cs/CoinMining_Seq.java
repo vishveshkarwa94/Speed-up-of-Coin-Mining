@@ -70,13 +70,13 @@ public class CoinMining_Seq {
         MyTimer myTimer;
         int  nonce = 0;
 
+        System.out.println("BlockHash: " + blockHash);
+        System.out.println("TargetHash: " + targetHash);
+
         while (currentBlockID<= num_blocks){
 
             myTimer = new MyTimer("CurrentBlockID:"+currentBlockID);
             myTimer.start_timer();
-
-            System.out.println("BlockHash: " + blockHash);
-            System.out.println("TargetHash: " + targetHash);
             nonce = pow(blockHash, targetHash);
             System.out.println("Nonce : "+nonce);
             myTimer.stop_timer();
