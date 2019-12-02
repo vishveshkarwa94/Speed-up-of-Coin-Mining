@@ -8,6 +8,7 @@
       <element id="module-output" name="coin_mining" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../../jars/mpi.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.13/commons-codec-1.13.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../jars/omp4j-1.2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
