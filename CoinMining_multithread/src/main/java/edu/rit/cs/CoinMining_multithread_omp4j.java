@@ -47,7 +47,7 @@ public class CoinMining_multithread_omp4j extends Thread {
 
         long temp_nonce=0;
         String tmp_hash="undefined";
-        flag = true;
+        flag = false;
         // omp parallel for
         for(temp_nonce= Integer.MIN_VALUE; temp_nonce<=Integer.MAX_VALUE; temp_nonce++) {
             if(flag){

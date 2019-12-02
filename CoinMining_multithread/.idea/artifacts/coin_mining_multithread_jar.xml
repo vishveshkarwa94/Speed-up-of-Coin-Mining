@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="coin_mining_multithread:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/coin_mining_multithread_jar</output-path>
+    <root id="archive" name="coin_mining_multithread.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/target/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="coin_mining_multithread" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.13/commons-codec-1.13.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
