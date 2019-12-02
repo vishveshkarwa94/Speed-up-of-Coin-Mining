@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 
 
 public class CoinMining_multithreading extends Thread {
-    static final int num_processors = 16;
+    static final int num_processors = 2;
     static long nonce;
     static String tmpBlockHash;
     static String tmpTargetHash;

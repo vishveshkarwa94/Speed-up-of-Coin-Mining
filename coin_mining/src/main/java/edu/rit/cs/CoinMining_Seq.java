@@ -16,11 +16,10 @@ public class CoinMining_Seq {
         int nonce=0;
         String tmp_hash="undefined";
         for(nonce=Integer.MAX_VALUE; nonce<=Integer.MAX_VALUE; nonce++) {
-            tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(blockHash+String.valueOf(nonce)));
+            tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(blockHash+nonce));
             if(targetHash.compareTo(tmp_hash)>0)
                 break;
         }
-        System.out.println("Resulting Hash: " + tmp_hash);
         return nonce;
     }
 
@@ -77,7 +76,7 @@ public class CoinMining_Seq {
 
             myTimer = new MyTimer("CurrentBlockID:"+currentBlockID);
             myTimer.start_timer();
-            nonce = pow(blockHash, targetHash);
+            nonce = pow(tmpBlockHash, tmpTargetHash);
             System.out.println("Nonce : "+nonce);
             myTimer.stop_timer();
             myTimer.print_elapsed_time();
