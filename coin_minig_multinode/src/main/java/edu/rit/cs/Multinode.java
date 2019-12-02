@@ -64,23 +64,22 @@ public class Multinode {
     public static void slave(long start, long end, int rank) throws MPIException {
 
         String tmp_hash;
-        thread_flag = false;
+        thread_flag = true;
         // omp parallel for
         for(long temp_nonce= start; temp_nonce<=end; temp_nonce++) {
-
             if(thread_flag){
-                return;
+                Status flag =  MPI.COMM_WORLD.iProbe(0,1);
+                if(flag != null){
+                    MPI.COMM_WORLD.recv(MPI.newIntBuffer(1),1,MPI.INT,0,1);
+                }
+                tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(tmpBlockHash+ temp_nonce));
+                if(tmpTargetHash.compareTo(tmp_hash)>0) {
+                    thread_flag = false;
+                    MPI.COMM_WORLD.send(MPI.newLongBuffer(1).put(0,temp_nonce),1,MPI.LONG,0,2);
+                }
             }
-
-            Status flag =  MPI.COMM_WORLD.iProbe(0,1);
-            if(flag != null){
-                MPI.COMM_WORLD.recv(MPI.newIntBuffer(1),1,MPI.INT,0,1);
-                return;
-            }
-            tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(tmpBlockHash+ temp_nonce));
-            if(tmpTargetHash.compareTo(tmp_hash)>0) {
-                thread_flag = true;
-                MPI.COMM_WORLD.send(MPI.newLongBuffer(1).put(0,temp_nonce),1,MPI.LONG,0,2);
+            else {
+                temp_nonce = end;
             }
         }
     }
