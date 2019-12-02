@@ -6,9 +6,10 @@ import mpi.Status;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.math.BigInteger;
+import java.nio.CharBuffer;
 import java.nio.LongBuffer;
 
-public class Multinode {
+public class Multinode{
 
     static String tmpBlockHash;
     static String tmpTargetHash;
@@ -48,12 +49,18 @@ public class Multinode {
 
         long start_nonce = Integer.MIN_VALUE;
         long block = (Long.parseLong("4294967295")/(size-1));
+
         for(int count = 0;count<size;count++){
             LongBuffer send_buffer = MPI.newLongBuffer(2);
             send_buffer.put(0,start_nonce);
             send_buffer.put(1,(start_nonce+block));
             start_nonce+=(block+1);
+
             MPI.COMM_WORLD.send(send_buffer,2,MPI.LONG,count,0);
+
+            MPI.COMM_WORLD.send(MPI.newCharBuffer(tmpBlockHash.length()).put(tmpBlockHash,0,tmpBlockHash.length()),tmpBlockHash.length(),MPI.CHAR,count,0);
+
+            MPI.COMM_WORLD.send(MPI.newCharBuffer(tmpTargetHash.length()).put(tmpTargetHash,0,tmpTargetHash.length()),tmpTargetHash.length(),MPI.CHAR,count,0);
         }
         LongBuffer receive_buffer = MPI.newLongBuffer(1);
         MPI.COMM_WORLD.recv(receive_buffer, 1, MPI.LONG, MPI.ANY_SOURCE,2);
@@ -61,7 +68,7 @@ public class Multinode {
 
     }
 
-    public static void slave(long start, long end, int rank) throws MPIException {
+    public static void slave(long start, long end, String block, String target) throws MPIException {
 
         String tmp_hash;
         thread_flag = true;
@@ -72,8 +79,8 @@ public class Multinode {
                 if(flag != null){
                     MPI.COMM_WORLD.recv(MPI.newIntBuffer(1),1,MPI.INT,0,1);
                 }
-                tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(tmpBlockHash+ temp_nonce));
-                if(tmpTargetHash.compareTo(tmp_hash)>0) {
+                tmp_hash = DigestUtils.sha256Hex(DigestUtils.sha256Hex(block+ temp_nonce));
+                if(target.compareTo(tmp_hash)>0) {
                     thread_flag = false;
                     MPI.COMM_WORLD.send(MPI.newLongBuffer(1).put(0,temp_nonce),1,MPI.LONG,0,2);
                 }
@@ -83,6 +90,8 @@ public class Multinode {
             }
         }
     }
+
+
 
     public static void main(String[] args) throws MPIException {
 
@@ -100,7 +109,6 @@ public class Multinode {
         int currentBlockID = 1;
 
         if(rank == 0){
-
             while (currentBlockID<=num_blocks)
             {
                 MyTimer myTimer = new MyTimer("CurrentBlockID:"+currentBlockID);
@@ -128,19 +136,26 @@ public class Multinode {
                 System.out.println();
             }
         }
+
         else{
 
             while (true){
                 LongBuffer send_buffer = MPI.newLongBuffer(2);
                 MPI.COMM_WORLD.recv(send_buffer,2,MPI.LONG,0,0);
+                Status s = MPI.COMM_WORLD.probe(0,0);
+                CharBuffer block = MPI.newCharBuffer(s.getCount(MPI.CHAR));
+                MPI.COMM_WORLD.recv(block,s.getCount(MPI.CHAR),MPI.CHAR,0,0);
+                s = MPI.COMM_WORLD.probe(0,0);
+                CharBuffer target = MPI.newCharBuffer(s.getCount(MPI.CHAR));
+                MPI.COMM_WORLD.recv(target,s.getCount(MPI.CHAR),MPI.CHAR,0,0);
                 long start_nonce = send_buffer.get(0);
                 long end_nonce = send_buffer.get(1);
-                slave(start_nonce,end_nonce,rank);
+                slave(start_nonce,end_nonce,block.toString(),target.toString());
             }
 
         }
         MPI.COMM_WORLD.abort(0);
-
     }
+
 
 }
